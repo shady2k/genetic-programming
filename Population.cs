@@ -14,6 +14,7 @@ namespace gp
         public double minValue { get; private set; }
         public double maxValue { get; private set; }
         public int maxPopulationSize { get; private set; }
+        public int maxTreeDepth { get; private set; }
         public double crossPossibility { get; private set; }
         public double mutationPossibility { get; private set; }
         public int roundVal { get; private set; } = 3;
@@ -23,7 +24,7 @@ namespace gp
         public int initPopulationSize { get; private set; }
         public int generation { get; private set; } = 1;
         private int lastChromosomeID = 0;
-        public Population(double minValue, double maxValue, int maxPopulationSize, double crossPossibility, double mutationPossibility,
+        public Population(double minValue, double maxValue, int maxPopulationSize, int maxTreeDepth, double crossPossibility, double mutationPossibility,
                           int initPopulationSize, NCalc.Expression fitnessFunction, NCalc.Expression solutionFunction)
         {
             chromosomes = new List<Chromosome>();
@@ -35,6 +36,7 @@ namespace gp
             this.solutionFunction = solutionFunction;
             this.initPopulationSize = initPopulationSize;
             this.maxPopulationSize = maxPopulationSize;
+            this.maxTreeDepth = maxTreeDepth;
             this.generation = 1;
             Init(initPopulationSize);
         }
@@ -50,6 +52,7 @@ namespace gp
         private Chromosome CopyChromosome(Chromosome source)
         {
             Chromosome target = new Chromosome(GenerateNewChromosomeID());
+            target.Tree.ChangeLastNodeID(source.Tree.GetLastNodeID());
             target.Tree.CopyNode(source, target);
             return target;
         }
@@ -95,25 +98,33 @@ namespace gp
         }
         public double CalcFitness(Chromosome chromosome)
         {
-            double x = Math.Round(StaticRandom.NextDouble(minValue, maxValue), 3);
-
-            NExpression mf = new NExpression(chromosome.ParsedData);
-            mf.Parameters["x"] = x;
-            double mfr = Convert.ToDouble(mf.Evaluate());
-
-            solutionFunction.Parameters["x"] = x;
-            double sfr = Convert.ToDouble(solutionFunction.Evaluate());
-
             double ffr = Double.NaN;
-            if (Double.IsInfinity(mfr))
+
+            try
             {
-                ffr = Double.MaxValue;
-            }
-            else
+                double x = Math.Round(StaticRandom.NextDouble(minValue, maxValue), 3);
+
+                NExpression mf = new NExpression(chromosome.ParsedData);
+                mf.Parameters["x"] = x;
+                double mfr = Convert.ToDouble(mf.Evaluate());
+
+                solutionFunction.Parameters["x"] = x;
+                double sfr = Convert.ToDouble(solutionFunction.Evaluate());
+
+                if (Double.IsInfinity(mfr))
+                {
+                    ffr = Double.MaxValue;
+                    chromosome.isDead = true;
+                }
+                else
+                {
+                    fitnessFunction.Parameters["y"] = mfr;
+                    fitnessFunction.Parameters["d"] = sfr;
+                    ffr = Convert.ToDouble(fitnessFunction.Evaluate());
+                }
+            } catch(Exception ex)
             {
-                fitnessFunction.Parameters["y"] = mfr;
-                fitnessFunction.Parameters["d"] = sfr;
-                ffr = Convert.ToDouble(fitnessFunction.Evaluate());
+                chromosome.isDead = true;
             }
 
             return ffr;
@@ -121,12 +132,12 @@ namespace gp
         public Chromosome GenerateRandomChromosome()
         {
             Chromosome chromosome = new Chromosome(GenerateNewChromosomeID());
-            chromosome.Tree.GenerateRandomTree(chromosome, 10);
-            /*chromosome.ParsedData = chromosome.Tree.ParseData();
-            chromosome.fitness = CalcFitness(chromosome);*/
+            chromosome.Tree.GenerateRandomTree(chromosome, maxTreeDepth);
+            chromosome.ParsedData = chromosome.Tree.ParseData();
+            /*chromosome.fitness = CalcFitness(chromosome);*/
             return chromosome;
         }
-        public void Cross(Form1 t)
+        public void Cross()
         {
             var chromosomesSnapshot = chromosomes.ToList();
             foreach (var chromosome in chromosomesSnapshot)
@@ -134,11 +145,11 @@ namespace gp
                 if (StaticRandom.NextDouble() <= crossPossibility)
                 {
                     int rn = StaticRandom.Next(chromosomesSnapshot.Count - 1);
-                    Cross(chromosome, chromosomesSnapshot[rn], t);
+                    Cross(chromosome, chromosomesSnapshot[rn]);
                 }
             }
         }
-        private void Cross(Chromosome x, Chromosome y, Form1 t)
+        public void Cross(Chromosome x, Chromosome y)
         {
             Console.WriteLine("x: " + x.ParsedData);
             Console.WriteLine("y: " + y.ParsedData);
@@ -164,181 +175,60 @@ namespace gp
             Console.WriteLine("new y: " + xy.Tree.ParseData());
             Console.WriteLine("===============================");
 
-            t.g1 = x.Tree.GetEdges();
-            t.g2 = y.Tree.GetEdges();
-            t.g3 = xy.Tree.GetEdges();
-            t.g4 = yx.Tree.GetEdges();
-
             AddChromosome(xy);
             AddChromosome(yx);
         }
-
-
-
-
-        /*public List<Chromosome> GetBestСhromosome()
+        public void Mutation()
         {
-            return (GetBestСhromosome(1));
-        }
-        public List<Chromosome> GetBestСhromosome(int cnt)
-        {
-            List<Chromosome> sorted = new List<Chromosome>();
-            if (isMaxExtremum)
+            var chromosomesSnapshot = chromosomes.ToList();
+            foreach (var chromosome in chromosomesSnapshot)
             {
-                sorted = population.Where(x => x.isDead == false).OrderByDescending(o => o.fitness).Take(cnt).ToList();
-            }
-            else
-            {
-                sorted = population.Where(x => x.isDead == false).OrderBy(o => o.fitness).Take(cnt).ToList();
-            }
-            return sorted;
-        }
-        public List<Chromosome> GetRandomСhromosome()
-        {
-            return (GetRandomСhromosome(1));
-        }
-        public List<Chromosome> GetRandomСhromosome(int cnt)
-        {
-            List<Chromosome> rnd = new List<Chromosome>();
-            List<Chromosome> sorted = population.Where(x => x.isDead == false).ToList();
-
-            for (int i = 0; i < cnt; i++)
-            {
-                int rn = Util.Next(sorted.Count - 1);
-                rnd.Add(sorted[rn]);
-            }
-            return rnd;
-        }
-        public void Cross()
-        {
-            var populationSnapshot = population.ToList();
-            foreach (var chromosome in populationSnapshot)
-            {
-                if (Util.NextDouble() <= crossPossibility)
+                if (StaticRandom.NextDouble() <= mutationPossibility)
                 {
-                    int rn = Util.Next(populationSnapshot.Count - 1);
-                    Cross(chromosome, populationSnapshot[rn]);
+                    int rn = StaticRandom.Next(chromosomesSnapshot.Count - 1);
+                    Mutation(chromosome);
                 }
             }
         }
-        private void Cross(Chromosome x, Chromosome y)
+        public void Mutation(Chromosome x)
         {
-            double xy = Cross(x.value, y.value);
-            Add(xy);
+            Console.WriteLine("x: " + x.ParsedData);
+
+            Chromosome xx = CopyChromosome(x);
+            Chromosome y = GenerateRandomChromosome();
+            Node rnx = xx.Tree.GetRandomNode();
+
+            Console.WriteLine("y: " + y.ParsedData);
+
+            xx.Tree.ReplaceNode(y.Tree.Root, rnx);
+            xx.Tree.ParseData();
+
+            Console.WriteLine("-----");
+            Console.WriteLine("x: " + x.Tree.ParseData());
+            Console.WriteLine("y: " + y.Tree.ParseData());
+            Console.WriteLine("new xx: " + xx.Tree.ParseData());
+            Console.WriteLine("===============================");
+
+            AddChromosome(xx);
         }
         public void TestChromosomes()
         {
-            foreach (Chromosome Сhromosome in population)
+            /*foreach (Chromosome chromosome in chromosomes)
             {
-                if (Сhromosome.value < minValue || Сhromosome.value > maxValue)
+                if (chromosome.value < minValue || chromosome.value > maxValue)
                 {
-                    Сhromosome.isDead = true;
+                    chromosome.isDead = true;
                 }
-            }
+            }*/
         }
         public void Selection()
         {
+            TestChromosomes();
             List<Chromosome> sorted = new List<Chromosome>();
-            if (isMaxExtremum)
-            {
-                sorted = population.OrderBy(o => o.isDead).ThenByDescending(o => o.fitness).Take(maxPopulationSize).ToList();
-            }
-            else
-            {
-                sorted = population.OrderBy(o => o.isDead).ThenBy(o => o.fitness).Take(maxPopulationSize).ToList();
-            }
-            population = sorted;
+            sorted = chromosomes.OrderBy(o => o.isDead).ThenBy(o => o.fitness).Take(maxPopulationSize).ToList();
+            chromosomes = sorted;
             generation++;
         }
-        static protected Int64 BitCross(Int64 x, Int64 y)
-        {
-            int Count = Util.Next(62) + 1;
-            Int64 mask = ~0;
-
-            mask = mask << (64 - Count);
-
-            return (x & mask) | (y & ~mask);
-        }
-        static protected Int64 Cross(Int64 x, Int64 y)
-        {
-            Int64 res = BitCross(x, y);
-            if (Util.Next() % 2 == 0)
-            {
-                if (x * res < 0)
-                {
-                    res = -res;
-                }
-            }
-            else
-            {
-                if (y * res < 0)
-                {
-                    res = -res;
-                }
-            }
-
-            return res;
-        }
-        static protected double Cross(double x, double y)
-        {
-            Int64 ix = BitConverter.DoubleToInt64Bits(x);
-            Int64 iy = BitConverter.DoubleToInt64Bits(y);
-
-            double res = BitConverter.Int64BitsToDouble(BitCross(ix, iy));
-
-            if (Util.Next() % 2 == 0)
-            {
-                if (x * res < 0)
-                {
-                    res = -res;
-                }
-            }
-            else
-            {
-                if (y * res < 0)
-                {
-                    res = -res;
-                }
-            }
-
-            return res;
-        }
-        public void Mutation()
-        {
-            var populationSnapshot = population.ToList();
-            foreach (var chromosome in populationSnapshot)
-            {
-                if (Util.NextDouble() <= mutationPossibility)
-                {
-                    int rn = Util.Next(populationSnapshot.Count - 1);
-                    Mutation(populationSnapshot[rn]);
-                }
-            }
-        }
-        private void Mutation(Сhromosome x)
-        {
-            double z = Mutation(x.value);
-            Add(z);
-        }
-        static protected double Mutation(double val)
-        {
-            UInt64 x = BitConverter.ToUInt64(BitConverter.GetBytes(val), 0);
-
-            UInt64 mask = 1;
-            mask <<= Util.Next(63);
-            x ^= mask;
-
-            double res = BitConverter.ToDouble(BitConverter.GetBytes(x), 0);
-
-            return res;
-        }
-        static protected Int64 Mutation(Int64 val)
-        {
-            Int64 mask = 1;
-            mask <<= Util.Next(63);
-
-            return val ^ mask;
-        }*/
     }
 }
 

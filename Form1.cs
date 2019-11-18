@@ -33,51 +33,19 @@ namespace gp
         {
             NExpression fitnessFunction = new NExpression("Abs(y-d)");
             NExpression solutionFunction = new NExpression("Pow(x, 2)");
-            Population population = new Population(-5.12, 5.12, 100, 0.9, 0.1, 4, fitnessFunction, solutionFunction);
+            Population population = new Population(-5.12, 5.12, 100, 10, 0.9, 0.1, 4, fitnessFunction, solutionFunction);
 
-            population.Cross(this);
+            for (var i = 0; i <= 10; i++)
+            {
+                population.Cross();
+                population.Mutation();
+                population.Selection();
+            }
 
-            if(g1.Count > 0) DrawChart(gViewer1, g1);
+            if (g1.Count > 0) DrawChart(gViewer1, g1);
             if (g2.Count > 0) DrawChart(gViewer2, g2);
             if (g3.Count > 0) DrawChart(gViewer3, g3);
             if (g4.Count > 0) DrawChart(gViewer4, g4);
-
-
-
-
-            //Expression<Func<double, double>> f = (x) => 1*x + 2 + 3*x;
-            //var func = f.Compile(); // this is a Func<double,double,double>
-
-            /*object result = CSharpScript.EvaluateAsync("1 + 2");
-
-            NExpression ex = new NExpression("3*x + Sin(x+4)");
-            ex.Parameters["x"] = 0;
-            ex.Evaluate();
-            var test = ex.ParsedExpression;
-            NCalc.Domain.BinaryExpression operation = (NCalc.Domain.BinaryExpression)test;
-            Console.WriteLine(operation.LeftExpression.ToString());*/
-
-
-
-            /*Expression<Func<double, double, double>> f = (x, y) => Math.Sin(x / y) + (5 * 4*x);
-            var func = f.Compile(); // this is a Func<double,double,double>
-            Console.WriteLine(func(12, 5));
-            Console.WriteLine(func(23, 4));
-
-            //ParameterExpression param = (ParameterExpression)f.Parameters[0];
-            BinaryExpression operation = (BinaryExpression)f.Body;
-            var left = operation.Left;
-            var right = operation.Right;
-
-            var munged = SwapExpressionVisitor.Swap(
-                f, // the lambda to rewrite
-                f.Parameters[0], // "x"
-                Expression.Call(typeof(Math), "Log", null, f.Parameters[0]) // ln(x)
-            ); // (x, y) => (Sin((Log(x) / y)) + 5)
-
-            func = munged.Compile();
-            Console.WriteLine(func(12, 5));
-            Console.WriteLine(func(23, 4));*/
         }
 
         private void DrawChart(Microsoft.Msagl.GraphViewerGdi.GViewer gViewer, Population population)

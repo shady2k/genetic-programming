@@ -55,6 +55,14 @@ namespace gp
 
             return true;
         }*/
+        public void ChangeLastNodeID(int val)
+        {
+            this.lastNodeID = val;
+        }
+        public int GetLastNodeID()
+        {
+            return lastNodeID;
+        }
         public string ParseData()
         {
             return TraverseInOrder(this.Root, "");
@@ -215,7 +223,7 @@ namespace gp
         }
         public void CopyNode(Chromosome source, Chromosome target)
         {
-            target.Tree.Root = new Node(GenerateNewNodeID());
+            target.Tree.Root = new Node(source.Tree.Root.id);
 
             Node sourceTree = source.Tree.Root;
             Node targetTree = target.Tree.Root;
@@ -225,8 +233,16 @@ namespace gp
         }
         public void CopyNode(Node sourceTree, Node targetTree)
         {
+            if (targetTree.ParentNode == null)
+            {
+                targetTree.isRoot = true;
+            }
+            else
+            {
+                targetTree.isRoot = false;
+            }
+            targetTree.id = sourceTree.id;
             targetTree.Data = sourceTree.Data;
-            targetTree.isRoot = sourceTree.isRoot;
             targetTree.isOperator = sourceTree.isOperator;
             if (sourceTree.LeftNode != null)
             {
@@ -247,10 +263,59 @@ namespace gp
                 CopyNode(sourceTree.RightNode, targetTree.RightNode);
             }
         }
+        /*
+        public void CopyNode(Chromosome source, Chromosome target)
+        {
+            target.Tree.Root = new Node(GenerateNewNodeID());
+
+            Node sourceTree = source.Tree.Root;
+            Node targetTree = target.Tree.Root;
+
+            CopyNode(sourceTree, targetTree);
+            target.Tree.ParseData();
+        }
+        public void CopyNode(Node sourceTree, Node targetTree)
+        {
+            if (targetTree.ParentNode == null)
+            {
+                targetTree.isRoot = true;
+            }
+            else
+            {
+                targetTree.isRoot = false;
+            }
+            targetTree.Data = sourceTree.Data;
+            targetTree.isOperator = sourceTree.isOperator;
+            if (sourceTree.LeftNode != null)
+            {
+                if (targetTree.LeftNode == null)
+                {
+                    targetTree.LeftNode = new Node(GenerateNewNodeID());
+                    targetTree.LeftNode.ParentNode = targetTree;
+                }
+                CopyNode(sourceTree.LeftNode, targetTree.LeftNode);
+            }
+            if (sourceTree.RightNode != null)
+            {
+                if (targetTree.RightNode == null)
+                {
+                    targetTree.RightNode = new Node(GenerateNewNodeID());
+                    targetTree.RightNode.ParentNode = targetTree;
+                }
+                CopyNode(sourceTree.RightNode, targetTree.RightNode);
+            }
+        }
+         */
         public void ReplaceNode(Node source, Node target)
         {
+            if(target.ParentNode == null)
+            {
+                target.isRoot = true;
+            } else
+            {
+                target.isRoot = false;
+            }
             target.Data = source.Data;
-            target.isRoot = source.isRoot;
             target.isOperator = source.isOperator;
             if (source.LeftNode != null)
             {
