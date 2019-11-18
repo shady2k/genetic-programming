@@ -248,7 +248,7 @@ namespace gp
             {
                 if (targetTree.LeftNode == null)
                 {
-                    targetTree.LeftNode = new Node(GenerateNewNodeID());
+                    targetTree.LeftNode = new Node(sourceTree.LeftNode.id);
                     targetTree.LeftNode.ParentNode = targetTree;
                 }
                 CopyNode(sourceTree.LeftNode, targetTree.LeftNode);
@@ -257,7 +257,7 @@ namespace gp
             {
                 if (targetTree.RightNode == null)
                 {
-                    targetTree.RightNode = new Node(GenerateNewNodeID());
+                    targetTree.RightNode = new Node(sourceTree.RightNode.id);
                     targetTree.RightNode.ParentNode = targetTree;
                 }
                 CopyNode(sourceTree.RightNode, targetTree.RightNode);

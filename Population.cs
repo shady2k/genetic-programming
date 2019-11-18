@@ -229,6 +229,26 @@ namespace gp
             chromosomes = sorted;
             generation++;
         }
+        public Chromosome GetBestСhromosome()
+        {
+            return (GetBestСhromosome(1).FirstOrDefault());
+        }
+        public List<Chromosome> GetBestСhromosome(int cnt)
+        {
+            List<Chromosome> sorted = new List<Chromosome>();
+            sorted = chromosomes.Where(x => x.isDead == false).OrderBy(o => o.fitness).Take(cnt).ToList();
+            return sorted;
+        }
+        public Chromosome GetWorstСhromosome()
+        {
+            return (GetWorstСhromosome(1).FirstOrDefault());
+        }
+        public List<Chromosome> GetWorstСhromosome(int cnt)
+        {
+            List<Chromosome> sorted = new List<Chromosome>();
+            sorted = chromosomes.Where(x => x.isDead == false).OrderByDescending(o => o.fitness).Take(cnt).ToList();
+            return sorted;
+        }
     }
 }
 

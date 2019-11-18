@@ -31,15 +31,45 @@ namespace gp
 
         private void button1_Click(object sender, EventArgs e)
         {
+            decimal maxGenerations = 1000;
+            decimal maxEqualGenerations = 20;
+            double lastValue = Double.NaN;
+            int equalCount = 0;
+            int lastValueGeneration = 0;
+
             NExpression fitnessFunction = new NExpression("Abs(y-d)");
-            NExpression solutionFunction = new NExpression("Pow(x, 2)");
+            NExpression solutionFunction = new NExpression("3*Pow(x, 2)");
             Population population = new Population(-5.12, 5.12, 100, 10, 0.9, 0.1, 4, fitnessFunction, solutionFunction);
 
-            for (var i = 0; i <= 10; i++)
+            for (var i = 0; i <= maxGenerations; i++)
             {
                 population.Cross();
                 population.Mutation();
                 population.Selection();
+                Chromosome chromosome = population.GetBestСhromosome();
+
+                if (i == 0)
+                {
+                    lastValue = chromosome.fitness;
+                }
+                else
+                {
+                    if (lastValue.Equals(chromosome.fitness))
+                    {
+                        equalCount++;
+                    }
+                    else
+                    {
+                        equalCount = 0;
+                        lastValueGeneration = population.generation;
+                    }
+                    lastValue = chromosome.fitness;
+                }
+                if (equalCount > maxEqualGenerations)
+                {
+                    Console.WriteLine("maxEqualGenerations break");
+                    break;
+                }
             }
 
             if (g1.Count > 0) DrawChart(gViewer1, g1);
@@ -71,31 +101,6 @@ namespace gp
             }
 
             gViewer.Graph = graph;
-        }
-    }
-
-    class SwapExpressionVisitor : ExpressionVisitor
-    {
-        public static Expression<T> Swap<T>(Expression<T> lambda,
-            Expression from, Expression to)
-        {
-            return Expression.Lambda<T>(
-                Swap(lambda.Body, from, to), lambda.Parameters);
-        }
-        public static Expression Swap(
-            Expression body, Expression from, Expression to)
-        {
-            return new SwapExpressionVisitor(from, to).Visit(body);
-        }
-        private readonly Expression from, to;
-        public SwapExpressionVisitor(Expression from, Expression to)
-        {
-            this.from = from;
-            this.to = to;
-        }
-        public override Expression Visit(Expression node)
-        {
-            return node == from ? to : base.Visit(node);
         }
     }
 }
