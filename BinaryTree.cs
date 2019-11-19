@@ -20,41 +20,6 @@ namespace gp
             lastNodeID++;
             return lastNodeID;
         }
-
-        /*public bool Add(int value)
-        {
-            Node before = null, after = this.Root;
-
-            while (after != null)
-            {
-                before = after;
-                if (value != after.Data) //Is new node in left tree? after = after.LeftNode; else if (value > after.Data) //Is new node in right tree?
-                    after = after.RightNode;
-                else
-                {
-                    //Exist same value
-                    return false;
-                }
-            }
-
-            Node newNode = new Node();
-            newNode.Data = value;
-
-            if (this.Root == null)
-            {
-                this.Root = newNode;
-                this.Root.isRoot = true;
-            }
-            else
-            {
-                if (value < before.Data)
-                    before.LeftNode = newNode;
-                else
-                    before.RightNode = newNode;
-            }
-
-            return true;
-        }*/
         public void ChangeLastNodeID(int val)
         {
             this.lastNodeID = val;

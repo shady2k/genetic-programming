@@ -14,80 +14,159 @@ using MExpression = org.mariuszgromada.math.mxparser.Expression;
 using NExpression = NCalc.Expression;
 using Expression = System.Linq.Expressions.Expression;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
+using System.Collections.Concurrent;
+using System.Windows.Forms.DataVisualization.Charting;
+using System.Diagnostics;
 
 namespace gp
 {
     public partial class Form1 : Form
     {
-        public List<Adjacency> g1 = new List<Adjacency>();
-        public List<Adjacency> g2 = new List<Adjacency>();
-        public List<Adjacency> g3 = new List<Adjacency>();
-        public List<Adjacency> g4 = new List<Adjacency>();
+        private Population syncPopulation;
+        private int lastBestChromosomeID = -1;
         private static readonly Random getRandom = new Random();
         public Form1()
         {
             InitializeComponent();
         }
-
-        private void button1_Click(object sender, EventArgs e)
+        private void lockControls(bool isEnabled)
         {
-            decimal maxGenerations = 1000;
-            decimal maxEqualGenerations = 20;
-            double lastValue = Double.NaN;
-            int equalCount = 0;
+            if (isEnabled)
+            {
+                foreach (Control item in splitContainer2.Panel1.Controls)
+                {
+                    item.Enabled = false;
+                }
+                txtLog.Text = "Выполняется...";
+            }
+            else
+            {
+                foreach (Control item in splitContainer2.Panel1.Controls)
+                {
+                    item.Enabled = true;
+                }
+            }
+        }
+        private void updateUI()
+        {
+            string log = string.Empty;
+            int currentBestChromosomeID = syncPopulation.GetBestСhromosome().id;
+            log = "Выполняется, поколение " + syncPopulation.generation.ToString() + "\r\n";
+            double t = Math.Round(100 - (syncPopulation.GetBestСhromosome().fitness / 100), 2);
+            log += String.Format("Точность: {0}%\r\n", t);
+            log += string.Format("Лучшая хромосома:\r\n" + syncPopulation.GetBestСhromosome().ParsedData);
+            txtLog.Text = log;
+            if (currentBestChromosomeID != lastBestChromosomeID)
+            {
+                lastBestChromosomeID = currentBestChromosomeID;
+                drawBestChromosomeChart(chartBestChromosome, syncPopulation);
+                DrawBestChromosomeDiagram(gViewer1, syncPopulation);
+            }
+        }
+        private string Start(decimal maxGenerations, decimal maxEqualGenerations, Population population)
+        {
+            string log = String.Empty;
+            double lastValue = 0;
             int lastValueGeneration = 0;
+            int equalCount = 0;
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            try
+            {
+                for (var i = 0; i <= maxGenerations; i++)
+                {
+                    population.Cross();
+                    population.Mutation();
+                    population.Selection();
+                    Chromosome chromosome = population.GetBestСhromosome();
+
+                    if (i == 0)
+                    {
+                        lastValue = chromosome.fitness;
+                    }
+                    else
+                    {
+                        if (lastValue.Equals(chromosome.fitness))
+                        {
+                            equalCount++;
+                        }
+                        else
+                        {
+                            equalCount = 0;
+                            lastValueGeneration = population.generation;
+                        }
+                        lastValue = chromosome.fitness;
+                    }
+                    if ((i % 2) == 0 && i != 0)
+                    {
+                        syncPopulation = population;
+                        this.BeginInvoke(new MethodInvoker(updateUI));
+                    }
+                    if (equalCount > maxEqualGenerations)
+                    {
+                        Console.WriteLine("maxEqualGenerations break");
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log += String.Format("Возникла ошибка:{0}\r\n", ex.Message);
+                log += String.Format("Стек трейс:\r\n{0}\r\n", ex.StackTrace);
+            }
+            finally
+            {
+                stopwatch.Stop();
+            }
+
+            stopwatch.Stop();
+            log += String.Format("Найденная функция: {0}\r\n", population.GetBestСhromosome().ParsedData);
+            log += String.Format("Функция: {0}\r\n", population.solutionFunction.ParsedExpression);
+            log += String.Format("Прошло поколений: {0}\r\n", population.generation);
+            log += String.Format("Прошло времени: {0} секунд\r\n", (int)stopwatch.Elapsed.TotalSeconds);
+            log += String.Format("Решение найдно на поколении: {0}\r\n", lastValueGeneration);
+            double t = Math.Round(100 - (syncPopulation.GetBestСhromosome().fitness / 100), 2);
+            log += String.Format("Точность: {0}%\r\n", t);
+            log += String.Format("Максимальное количество поколений: {0}\r\n", maxGenerations);
+            log += String.Format("Интервал изменений хромосом: [{0}, {1}]\r\n", population.minValue, population.maxValue);
+            log += String.Format("Макс. кол-во поколений при постоянном значении: {0}\r\n", maxEqualGenerations);
+            log += String.Format("Максимальный размер популяции: {0}\r\n", population.maxPopulationSize);
+            log += String.Format("Начальный размер популяции: {0}\r\n", population.initPopulationSize);
+            log += String.Format("Вероятность скрещивания: {0}%\r\n", population.crossPossibility * 100);
+            log += String.Format("Вероятность мутации: {0}%\r\n", population.mutationPossibility * 100);
+
+            return log;
+        }
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            string log;
+            decimal maxGenerations = 1000;
+            decimal maxEqualGenerations = 200;
+
+            lockControls(true);
 
             NExpression fitnessFunction = new NExpression("Abs(y-d)");
             NExpression solutionFunction = new NExpression("3*Pow(x, 2)");
             Population population = new Population(-5.12, 5.12, 100, 10, 0.9, 0.1, 4, fitnessFunction, solutionFunction);
-
-            for (var i = 0; i <= maxGenerations; i++)
-            {
-                population.Cross();
-                population.Mutation();
-                population.Selection();
-                Chromosome chromosome = population.GetBestСhromosome();
-
-                if (i == 0)
-                {
-                    lastValue = chromosome.fitness;
-                }
-                else
-                {
-                    if (lastValue.Equals(chromosome.fitness))
-                    {
-                        equalCount++;
-                    }
-                    else
-                    {
-                        equalCount = 0;
-                        lastValueGeneration = population.generation;
-                    }
-                    lastValue = chromosome.fitness;
-                }
-                if (equalCount > maxEqualGenerations)
-                {
-                    Console.WriteLine("maxEqualGenerations break");
-                    break;
-                }
-            }
-
-            if (g1.Count > 0) DrawChart(gViewer1, g1);
-            if (g2.Count > 0) DrawChart(gViewer2, g2);
-            if (g3.Count > 0) DrawChart(gViewer3, g3);
-            if (g4.Count > 0) DrawChart(gViewer4, g4);
+            drawSolutionFunctionChart(chartFunction, population);
+            log = await Task.Run(() => Start(maxGenerations, maxEqualGenerations, population));
+            txtLog.Text = log;
+            lockControls(false);
         }
 
-        private void DrawChart(Microsoft.Msagl.GraphViewerGdi.GViewer gViewer, Population population)
+        private void DrawBestChromosomeDiagram(Microsoft.Msagl.GraphViewerGdi.GViewer gViewer, Population population)
         {
             Microsoft.Msagl.Drawing.Graph graph = new Microsoft.Msagl.Drawing.Graph("graph");
 
-            Chromosome chromosome = population.GetChromosomes()[0];
+            Chromosome chromosome = population.GetBestСhromosome();
             List<Adjacency> res = chromosome.Tree.GetEdges();
 
-            DrawChart(gViewer, res);
+            DrawDiagram(gViewer, res);
         }
-        private void DrawChart(Microsoft.Msagl.GraphViewerGdi.GViewer gViewer, List<Adjacency> res)
+        private void DrawDiagram(Microsoft.Msagl.GraphViewerGdi.GViewer gViewer, List<Adjacency> res)
         {
             Microsoft.Msagl.Drawing.Graph graph = new Microsoft.Msagl.Drawing.Graph("graph");
 
@@ -98,9 +177,104 @@ namespace gp
                 var node2 = graph.AddNode(item.targetId.ToString());
                 node2.LabelText = item.targetData;
                 graph.AddEdge(item.sourceId.ToString(), item.targetId.ToString());
+                //graph.LayerConstraints.AddSameLayerNeighbors(node, node2);
             }
 
             gViewer.Graph = graph;
         }
+        private void drawBestChromosomeChart(Chart chart, Population population)
+        {
+            try
+            {
+                chart.Series.Clear();
+
+                Series mySeriesOfPoint = new Series("Series1");
+                mySeriesOfPoint.BorderWidth = 2;
+                mySeriesOfPoint.ChartType = SeriesChartType.Line;
+                mySeriesOfPoint.ChartArea = "ChartArea1";
+                for (double x = population.minValue; x <= population.maxValue; x += 0.01)
+                {
+                    NExpression testFunction = new NExpression(population.GetBestСhromosome().ParsedData);
+                    testFunction.Parameters["x"] = x;
+                    double sfr = Convert.ToDouble(testFunction.Evaluate());
+                    mySeriesOfPoint.Points.AddXY(x, sfr);
+                }
+                //Добавляем созданный набор точек в Chart
+                chart.Series.Add(mySeriesOfPoint);
+                chart.ChartAreas[0].RecalculateAxesScale();
+            }
+            catch
+            {
+                chart.Series.Clear();
+                return;
+            }
+        }
+        private void drawSolutionFunctionChart(Chart chart, Population population)
+        {
+            try
+            {
+                chart.Series.Clear();
+
+                Series mySeriesOfPoint = new Series("Series1");
+                mySeriesOfPoint.BorderWidth = 2;
+                mySeriesOfPoint.ChartType = SeriesChartType.Line;
+                mySeriesOfPoint.ChartArea = "ChartArea1";
+                for (double x = population.minValue; x <= population.maxValue; x += 0.01)
+                {
+                    NExpression solutionFunction = population.solutionFunction;
+                    solutionFunction.Parameters["x"] = x;
+                    double sfr = Convert.ToDouble(solutionFunction.Evaluate());
+                    mySeriesOfPoint.Points.AddXY(x, sfr);
+                }
+                //Добавляем созданный набор точек в Chart
+                chart.Series.Add(mySeriesOfPoint);
+                chart.ChartAreas[0].RecalculateAxesScale();
+            }
+            catch
+            {
+                chart.Series.Clear();
+                return;
+            }
+        }
+        private void drawChart(List<KeyValuePair<int, double>> plotData, Chart chart)
+        {
+            try
+            {
+                chart.Series.Clear();
+                Series mySeriesOfPoint = new Series("Series1", plotData.Count());
+                mySeriesOfPoint.ChartType = SeriesChartType.Line;
+                mySeriesOfPoint.ChartArea = "ChartArea1";
+                mySeriesOfPoint.BorderWidth = 3;
+
+                ChartArea ca = chart.ChartAreas[0];
+                ca.AxisX.IsLabelAutoFit = false;
+
+                double? YAxisMin = null;
+                double? YAxisMax = null;
+                foreach (KeyValuePair<int, double> data in plotData)
+                {
+                    if (!YAxisMin.HasValue) YAxisMin = data.Value;
+                    if (!YAxisMax.HasValue) YAxisMax = data.Value;
+
+                    var point = mySeriesOfPoint.Points.AddXY(data.Key, data.Value);
+                    if (data.Value < YAxisMin) YAxisMin = data.Value;
+                    if (data.Value > YAxisMax) YAxisMax = data.Value;
+                }
+                chart.Series.Add(mySeriesOfPoint);
+
+                if (!YAxisMin.HasValue) YAxisMin = 0;
+                if (!YAxisMax.HasValue) YAxisMax = 0;
+                if (YAxisMax.Value == YAxisMin.Value) YAxisMax += 1;
+                ca.AxisY.Maximum = YAxisMax.Value;
+                ca.AxisY.Minimum = YAxisMin.Value;
+                ca.RecalculateAxesScale();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(String.Format("Возникла ошибка при построении графика ({0})", ex.Message), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+        }
+
     }
 }

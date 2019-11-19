@@ -10,6 +10,7 @@ namespace gp
     class Population
     {
         private List<Chromosome> chromosomes;
+        private List<double> xRandomVariables = new List<double>();
 
         public double minValue { get; private set; }
         public double maxValue { get; private set; }
@@ -19,8 +20,7 @@ namespace gp
         public double mutationPossibility { get; private set; }
         public int roundVal { get; private set; } = 3;
         private NCalc.Expression fitnessFunction;
-        private NCalc.Expression solutionFunction;
-        public string txtFunction { get; private set; }
+        public NCalc.Expression solutionFunction { get; private set;  }
         public int initPopulationSize { get; private set; }
         public int generation { get; private set; } = 1;
         private int lastChromosomeID = 0;
@@ -84,6 +84,8 @@ namespace gp
         }*/
         public void Init(int populationSize)
         {
+            xRandomVariables = GetFitnessVariables();
+
             if (populationSize < 2)
             {
                 throw new Exception("Too small population!");
@@ -96,33 +98,58 @@ namespace gp
                 //Add(randomNumber);
             }
         }
+        public List<double> GetFitnessVariables()
+        {
+            List<double> res = new List<double>();
+            int accuracy = 9;
+
+            double segmentLength = (maxValue - minValue) / accuracy;
+            double segmentMinValue = minValue;
+            double segmentMaxValue = minValue + segmentLength;
+
+            for(int i = 0; i < accuracy; i++)
+            {
+                double x = Math.Round(StaticRandom.NextDouble(segmentMinValue, segmentMaxValue), 3);
+                res.Add(x);
+                segmentMinValue = segmentMaxValue;
+                segmentMaxValue = segmentMaxValue + segmentLength;
+            }
+
+            return res;
+        }
         public double CalcFitness(Chromosome chromosome)
         {
             double ffr = Double.NaN;
+            List<double> xRes = new List<double>();
 
             try
             {
-                double x = Math.Round(StaticRandom.NextDouble(minValue, maxValue), 3);
-
-                NExpression mf = new NExpression(chromosome.ParsedData);
-                mf.Parameters["x"] = x;
-                double mfr = Convert.ToDouble(mf.Evaluate());
-
-                solutionFunction.Parameters["x"] = x;
-                double sfr = Convert.ToDouble(solutionFunction.Evaluate());
-
-                if (Double.IsInfinity(mfr))
+                foreach (double x in xRandomVariables)
                 {
-                    ffr = Double.MaxValue;
-                    chromosome.isDead = true;
+                    NExpression mf = new NExpression(chromosome.ParsedData);
+                    mf.Parameters["x"] = x;
+                    double mfr = Convert.ToDouble(mf.Evaluate());
+
+                    solutionFunction.Parameters["x"] = x;
+                    double sfr = Convert.ToDouble(solutionFunction.Evaluate());
+
+                    if (Double.IsInfinity(mfr))
+                    {
+                        xRes.Clear();
+                        xRes.Add(Double.MaxValue);
+                        chromosome.isDead = true;
+                        break;
+                    }
+                    else
+                    {
+                        fitnessFunction.Parameters["y"] = mfr;
+                        fitnessFunction.Parameters["d"] = sfr;
+                        xRes.Add(Convert.ToDouble(fitnessFunction.Evaluate()));
+                    }
                 }
-                else
-                {
-                    fitnessFunction.Parameters["y"] = mfr;
-                    fitnessFunction.Parameters["d"] = sfr;
-                    ffr = Convert.ToDouble(fitnessFunction.Evaluate());
-                }
-            } catch(Exception ex)
+
+                ffr = xRes.Sum();
+            } catch
             {
                 chromosome.isDead = true;
             }
@@ -151,8 +178,8 @@ namespace gp
         }
         public void Cross(Chromosome x, Chromosome y)
         {
-            Console.WriteLine("x: " + x.ParsedData);
-            Console.WriteLine("y: " + y.ParsedData);
+            //Console.WriteLine("x: " + x.ParsedData);
+            //Console.WriteLine("y: " + y.ParsedData);
 
             Chromosome yx = CopyChromosome(x);
             Chromosome xy = CopyChromosome(y);
@@ -168,12 +195,12 @@ namespace gp
             yx.Tree.ReplaceNode(rny, rnyx);
             yx.Tree.ParseData();
 
-            Console.WriteLine("-----");
+            /*Console.WriteLine("-----");
             Console.WriteLine("x: " + x.Tree.ParseData());
             Console.WriteLine("y: " + y.Tree.ParseData());
             Console.WriteLine("new x: " + yx.Tree.ParseData());
             Console.WriteLine("new y: " + xy.Tree.ParseData());
-            Console.WriteLine("===============================");
+            Console.WriteLine("===============================");*/
 
             AddChromosome(xy);
             AddChromosome(yx);
@@ -198,28 +225,32 @@ namespace gp
             Chromosome y = GenerateRandomChromosome();
             Node rnx = xx.Tree.GetRandomNode();
 
-            Console.WriteLine("y: " + y.ParsedData);
+            //Console.WriteLine("y: " + y.ParsedData);
 
             xx.Tree.ReplaceNode(y.Tree.Root, rnx);
             xx.Tree.ParseData();
 
-            Console.WriteLine("-----");
+            /*Console.WriteLine("-----");
             Console.WriteLine("x: " + x.Tree.ParseData());
             Console.WriteLine("y: " + y.Tree.ParseData());
             Console.WriteLine("new xx: " + xx.Tree.ParseData());
-            Console.WriteLine("===============================");
+            Console.WriteLine("===============================");*/
 
             AddChromosome(xx);
         }
         public void TestChromosomes()
         {
-            /*foreach (Chromosome chromosome in chromosomes)
+            foreach (Chromosome chromosome in chromosomes)
             {
-                if (chromosome.value < minValue || chromosome.value > maxValue)
+                if (chromosome.Tree.GetTreeDepth() > maxTreeDepth)
                 {
                     chromosome.isDead = true;
                 }
-            }*/
+                /*if (chromosome.value < minValue || chromosome.value > maxValue)
+                {
+                    chromosome.isDead = true;
+                }*/
+            }
         }
         public void Selection()
         {
