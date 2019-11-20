@@ -52,10 +52,11 @@ namespace gp
             string log = string.Empty;
             int currentBestChromosomeID = syncPopulation.GetBestСhromosome().id;
             log = "Выполняется, поколение " + syncPopulation.generation.ToString() + "\r\n";
-            double t = Math.Round(100 - (syncPopulation.GetBestСhromosome().fitness / 100), 2);
+            double t = Math.Round(100 - syncPopulation.GetBestСhromosome().fitness, 2);
+            if (t < 0) t = 0;
             log += String.Format("Точность: {0}%\r\n", t);
             log += string.Format("Лучшая хромосома:\r\n" + syncPopulation.GetBestСhromosome().ParsedData);
-            txtLog.Text = log;
+            if(txtLog.Text != log) txtLog.Text = log;
             if (currentBestChromosomeID != lastBestChromosomeID)
             {
                 lastBestChromosomeID = currentBestChromosomeID;
@@ -127,8 +128,8 @@ namespace gp
             log += String.Format("Прошло поколений: {0}\r\n", population.generation);
             log += String.Format("Прошло времени: {0} секунд\r\n", (int)stopwatch.Elapsed.TotalSeconds);
             log += String.Format("Решение найдно на поколении: {0}\r\n", lastValueGeneration);
-            double t = Math.Round(100 - (syncPopulation.GetBestСhromosome().fitness / 100), 2);
-            log += String.Format("Точность: {0}%\r\n", t);
+            double t = Math.Round(100 - population.GetBestСhromosome().fitness, 2);
+            if (t < 0) t = 0;
             log += String.Format("Максимальное количество поколений: {0}\r\n", maxGenerations);
             log += String.Format("Интервал изменений хромосом: [{0}, {1}]\r\n", population.minValue, population.maxValue);
             log += String.Format("Макс. кол-во поколений при постоянном значении: {0}\r\n", maxEqualGenerations);
@@ -150,7 +151,7 @@ namespace gp
 
             NExpression fitnessFunction = new NExpression("Abs(y-d)");
             NExpression solutionFunction = new NExpression("3*Pow(x, 2)");
-            Population population = new Population(-5.12, 5.12, 100, 10, 0.9, 0.1, 4, fitnessFunction, solutionFunction);
+            Population population = new Population(-5.12, 5.12, 100, 10, 0.9, 0.5, 4, fitnessFunction, solutionFunction);
             drawSolutionFunctionChart(chartFunction, population);
             log = await Task.Run(() => Start(maxGenerations, maxEqualGenerations, population));
             txtLog.Text = log;

@@ -10,7 +10,17 @@ namespace gp
 {
     class BinaryTree
     {
-        static readonly string[] operators = { "+", "-", "*", "/" };
+        static readonly List<Operator> operators = new List<Operator> { 
+            new Operator("+"), 
+            new Operator("-"), 
+            new Operator("*"), 
+            new Operator("/"),
+            new Operator("Abs()", true),
+            new Operator("Sin()", true),
+            new Operator("Cos()", true),
+            new Operator("Exp()", true),
+            new Operator("Pow()", true, "power"),
+        };
         static readonly string[] values = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
         static readonly string[] arguments = { "x" };
         private int lastNodeID = 0;
@@ -89,9 +99,18 @@ namespace gp
             chromosome.Tree.Root = new Node(GenerateNewNodeID());
             Node root = chromosome.Tree.Root;
 
-            root.Data = chromosome.Tree.GetRandomOperator();
+            Operator op = chromosome.Tree.GetRandomOperator();
+            root.Data = op.value;
+            if(op.operatorType == "power")
+            {
+                root.DataVisible = op.value.Replace("()", string.Format("({0})", op.power));
+            } else
+            {
+                root.DataVisible = op.value;
+            }
             root.isRoot = true;
             root.isOperator = true;
+            root.Operator = op;
 
             GenerateRandomTree(maxTreeDepth, 0, root);
             chromosome.Tree.ParseData();
@@ -99,17 +118,23 @@ namespace gp
         public void GenerateRandomTree(int maxTreeDepth, int currentDepth, Node parentNode)
         {
             currentDepth += 1;
-            if (currentDepth >= maxTreeDepth) return;
-
-            parentNode.LeftNode = GenerateNode(maxTreeDepth, currentDepth, parentNode);
-            if (parentNode.LeftNode.isOperator)
+            if (currentDepth >= maxTreeDepth)
             {
-                GenerateRandomTree(maxTreeDepth, currentDepth, parentNode.LeftNode);
+                return;
             }
 
-            parentNode.RightNode = GenerateNode(maxTreeDepth, currentDepth, parentNode);
-            if (parentNode.RightNode.isOperator)
+            if (parentNode.isOperator)
             {
+                parentNode.LeftNode = GenerateNode(maxTreeDepth, currentDepth, parentNode);
+                if (parentNode.LeftNode.isOperator)
+                {
+                    GenerateRandomTree(maxTreeDepth, currentDepth, parentNode.LeftNode);
+                }
+            }
+
+            if (parentNode.isOperator && !parentNode.Operator.isArgument)
+            {
+                parentNode.RightNode = GenerateNode(maxTreeDepth, currentDepth, parentNode);
                 GenerateRandomTree(maxTreeDepth, currentDepth, parentNode.RightNode);
             }
         }
@@ -125,8 +150,18 @@ namespace gp
             {
                 if (GetChance())
                 {
-                    newNode.Data = GetRandomOperator();
+                    Operator op = GetRandomOperator();
+                    newNode.Data = op.value;
+                    if (op.operatorType == "power")
+                    {
+                        newNode.DataVisible = op.value.Replace("()", string.Format("({0})", op.power));
+                    }
+                    else
+                    {
+                        newNode.DataVisible = op.value;
+                    }
                     newNode.isOperator = true;
+                    newNode.Operator = op;
                 }
                 else
                 {
@@ -135,13 +170,13 @@ namespace gp
             }
             return newNode;
         }
-        public string GetRandomValue()
+        public string GetRandomValue(int length)
         {
             string res = string.Empty;
 
             if (GetChance())
             {
-                int rvl = GetRandomNumber(1, 3);
+                int rvl = GetRandomNumber(1, length);
                 for (int i = 0; i <= rvl; i++)
                 {
                     int oc = values.Length;
@@ -157,11 +192,20 @@ namespace gp
                 return arguments[rn];
             }
         }
-        public string GetRandomOperator()
+        public string GetRandomValue()
         {
-            int oc = operators.Length;
+            return GetRandomValue(4);
+        }
+        public Operator GetRandomOperator()
+        {
+            int oc = operators.Count;
             int rn = GetRandomNumber(0, oc);
-            return operators[rn];
+            Operator op = operators[rn];
+            if(op.operatorType == "power")
+            {
+                op.power = StaticRandom.Next(2, 9);
+            }
+            return op;
         }
         public Node FindNode(int id)
         {
@@ -208,7 +252,9 @@ namespace gp
             }
             targetTree.id = sourceTree.id;
             targetTree.Data = sourceTree.Data;
+            targetTree.DataVisible = sourceTree.DataVisible;
             targetTree.isOperator = sourceTree.isOperator;
+            targetTree.Operator = sourceTree.Operator;
             if (sourceTree.LeftNode != null)
             {
                 if (targetTree.LeftNode == null)
@@ -281,7 +327,9 @@ namespace gp
                 target.isRoot = false;
             }
             target.Data = source.Data;
+            target.DataVisible = source.DataVisible;
             target.isOperator = source.isOperator;
+            target.Operator = source.Operator;
             if (source.LeftNode != null)
             {
                 if (target.LeftNode == null)
@@ -320,29 +368,30 @@ namespace gp
         {
             depthLevel += 1;
             if (node == null) return;
-            if(node.LeftNode != null)
-            {
-                Adjacency a = new Adjacency();
-                a.sourceId = node.id;
-                a.targetId = node.LeftNode.id;
-                a.sourceData = node.Data;
-                a.targetData = node.LeftNode.Data;
-                a.level = node.id;
-                res.Add(a);
-            }
             if (node.RightNode != null)
             {
                 Adjacency a = new Adjacency();
                 a.sourceId = node.id;
                 a.targetId = node.RightNode.id;
-                a.sourceData = node.Data;
+                a.sourceData = node.DataVisible;
                 a.targetData = node.RightNode.Data;
                 a.level = node.id;
                 res.Add(a);
             }
+            if (node.LeftNode != null)
+            {
+                Adjacency a = new Adjacency();
+                a.sourceId = node.id;
+                a.targetId = node.LeftNode.id;
+                a.sourceData = node.DataVisible;
+                a.targetData = node.LeftNode.Data;
+                a.level = node.id;
+                res.Add(a);
+            }
 
-            GetEdges(node.LeftNode, res, depthLevel);
+
             GetEdges(node.RightNode, res, depthLevel);
+            GetEdges(node.LeftNode, res, depthLevel);
         }
         /*public void Remove(int value)
         {
@@ -447,12 +496,42 @@ namespace gp
 
                 if (parent.isOperator)
                 {
-                    if(parent.isRoot)
+                    if (parent.isRoot)
                     {
-                        parsed = rln + parent.Data + rrn;
+                        if (parent.Operator.isArgument)
+                        {
+                            string val = string.Empty;
+                            if(parent.Operator.operatorType == "power")
+                            {
+                                val = parent.Data.Replace("()", string.Format("({0},{1})", rln, parent.Operator.power));
+                            } else
+                            {
+                                val = parent.Data.Replace("()", "(" + rln + ")");
+                            }
+                            
+                            parsed = val;
+                        } else
+                        {
+                            parsed = rln + parent.Data + rrn;
+                        }
                     } else
                     {
-                        parsed = "(" + rln + parent.Data + rrn + ")";
+                        if(parent.Operator.isArgument)
+                        {
+                            string val = string.Empty;
+                            if (parent.Operator.operatorType == "power")
+                            {
+                                val = parent.Data.Replace("()", string.Format("({0},{1})", rln, parent.Operator.power));
+                            }
+                            else
+                            {
+                                val = parent.Data.Replace("()", "(" + rln + ")");
+                            }
+                            parsed = val;
+                        } else
+                        {
+                            parsed = "(" + rln + parent.Data + rrn + ")";
+                        }
                     }
                 }
                 else
