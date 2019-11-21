@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NExpression = NCalc.Expression;
 
@@ -24,8 +25,11 @@ namespace gp
         public int initPopulationSize { get; private set; }
         public int generation { get; private set; } = 1;
         private int lastChromosomeID = 0;
-        public Population(double minValue, double maxValue, int maxPopulationSize, int maxTreeDepth, double crossPossibility, double mutationPossibility,
-                          int initPopulationSize, NCalc.Expression fitnessFunction, NCalc.Expression solutionFunction)
+        private string[] unknownVariables;
+        private int checkPoints;
+        public Population(double minValue, double maxValue, int maxPopulationSize, int maxTreeDepth, double crossPossibility, 
+            double mutationPossibility, int initPopulationSize, NCalc.Expression fitnessFunction, NCalc.Expression solutionFunction, 
+            string[] unknownVariables, int checkPoints)
         {
             chromosomes = new List<Chromosome>();
             this.minValue = minValue;
@@ -38,6 +42,8 @@ namespace gp
             this.maxPopulationSize = maxPopulationSize;
             this.maxTreeDepth = maxTreeDepth;
             this.generation = 1;
+            this.unknownVariables = unknownVariables;
+            this.checkPoints = checkPoints;
             Init(initPopulationSize);
         }
         public List<Chromosome> GetChromosomes()
@@ -51,7 +57,7 @@ namespace gp
         }
         private Chromosome CopyChromosome(Chromosome source)
         {
-            Chromosome target = new Chromosome(GenerateNewChromosomeID());
+            Chromosome target = new Chromosome(GenerateNewChromosomeID(), unknownVariables);
             target.Tree.ChangeLastNodeID(source.Tree.GetLastNodeID());
             target.Tree.CopyNode(source, target);
             return target;
@@ -101,7 +107,7 @@ namespace gp
         public List<double> GetFitnessVariables()
         {
             List<double> res = new List<double>();
-            int accuracy = 9;
+            int accuracy = checkPoints;
 
             double segmentLength = (maxValue - minValue) / accuracy;
             double segmentMinValue = minValue;
@@ -127,10 +133,18 @@ namespace gp
                 foreach (double x in xRandomVariables)
                 {
                     NExpression mf = new NExpression(chromosome.ParsedData);
-                    mf.Parameters["x"] = x;
+                    //mf.Parameters["x"] = x;
+                    foreach (string val in unknownVariables)
+                    {
+                        mf.Parameters[val] = x;
+                    }
                     double mfr = Convert.ToDouble(mf.Evaluate());
 
-                    solutionFunction.Parameters["x"] = x;
+                    //solutionFunction.Parameters["x"] = x;
+                    foreach (string val in unknownVariables)
+                    {
+                        solutionFunction.Parameters[val] = x;
+                    }
                     double sfr = Convert.ToDouble(solutionFunction.Evaluate());
 
                     if (Double.IsInfinity(mfr))
@@ -158,7 +172,7 @@ namespace gp
         }
         public Chromosome GenerateRandomChromosome()
         {
-            Chromosome chromosome = new Chromosome(GenerateNewChromosomeID());
+            Chromosome chromosome = new Chromosome(GenerateNewChromosomeID(), unknownVariables);
             chromosome.Tree.GenerateRandomTree(chromosome, maxTreeDepth);
             chromosome.ParsedData = chromosome.Tree.ParseData();
             /*chromosome.fitness = CalcFitness(chromosome);*/
@@ -256,7 +270,7 @@ namespace gp
         {
             TestChromosomes();
             List<Chromosome> sorted = new List<Chromosome>();
-            sorted = chromosomes.OrderBy(o => o.isDead).ThenBy(o => o.fitness).Take(maxPopulationSize).ToList();
+            sorted = chromosomes.OrderBy(o => o.isDead).ThenBy(o => o.fitness).ThenBy(o => o.Tree.NodesCount).Take(maxPopulationSize).ToList();
             chromosomes = sorted;
             generation++;
         }
@@ -267,7 +281,7 @@ namespace gp
         public List<Chromosome> GetBestСhromosome(int cnt)
         {
             List<Chromosome> sorted = new List<Chromosome>();
-            sorted = chromosomes.Where(x => x.isDead == false).OrderBy(o => o.fitness).Take(cnt).ToList();
+            sorted = chromosomes.Where(x => x.isDead == false).OrderBy(o => o.fitness).ThenBy(o => o.Tree.NodesCount).Take(cnt).ToList();
             return sorted;
         }
         public Chromosome GetWorstСhromosome()
@@ -277,7 +291,7 @@ namespace gp
         public List<Chromosome> GetWorstСhromosome(int cnt)
         {
             List<Chromosome> sorted = new List<Chromosome>();
-            sorted = chromosomes.Where(x => x.isDead == false).OrderByDescending(o => o.fitness).Take(cnt).ToList();
+            sorted = chromosomes.Where(x => x.isDead == false).OrderByDescending(o => o.fitness).ThenByDescending(o => o.Tree.NodesCount).Take(cnt).ToList();
             return sorted;
         }
     }

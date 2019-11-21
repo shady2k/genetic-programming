@@ -28,18 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation planeTransformation1 = new Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation planeTransformation5 = new Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea9 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea10 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.button1 = new System.Windows.Forms.Button();
-            this.cbCheckWithFunctionValue = new System.Windows.Forms.CheckBox();
-            this.nudCheckFunctionValue = new System.Windows.Forms.NumericUpDown();
-            this.cbExtremum = new System.Windows.Forms.ComboBox();
-            this.label10 = new System.Windows.Forms.Label();
             this.tbFunction = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.nudInitPopulationSize = new System.Windows.Forms.NumericUpDown();
@@ -64,6 +60,12 @@
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.chartBestChromosome = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.chartFunction = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.nudMaxTreeDepth = new System.Windows.Forms.NumericUpDown();
+            this.label11 = new System.Windows.Forms.Label();
+            this.tbFitnessFunction = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.nudCheckPoints = new System.Windows.Forms.NumericUpDown();
+            this.label12 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -72,7 +74,6 @@
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudCheckFunctionValue)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudInitPopulationSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMutationPossibility)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossPossibility)).BeginInit();
@@ -91,6 +92,8 @@
             this.splitContainer4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chartBestChromosome)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chartFunction)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMaxTreeDepth)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudCheckPoints)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -113,17 +116,20 @@
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer2.Location = new System.Drawing.Point(0, 0);
             this.splitContainer2.Name = "splitContainer2";
             this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
             // splitContainer2.Panel1
             // 
-            this.splitContainer2.Panel1.Controls.Add(this.button1);
-            this.splitContainer2.Panel1.Controls.Add(this.cbCheckWithFunctionValue);
-            this.splitContainer2.Panel1.Controls.Add(this.nudCheckFunctionValue);
-            this.splitContainer2.Panel1.Controls.Add(this.cbExtremum);
+            this.splitContainer2.Panel1.Controls.Add(this.nudCheckPoints);
+            this.splitContainer2.Panel1.Controls.Add(this.label12);
+            this.splitContainer2.Panel1.Controls.Add(this.tbFitnessFunction);
             this.splitContainer2.Panel1.Controls.Add(this.label10);
+            this.splitContainer2.Panel1.Controls.Add(this.nudMaxTreeDepth);
+            this.splitContainer2.Panel1.Controls.Add(this.label11);
+            this.splitContainer2.Panel1.Controls.Add(this.button1);
             this.splitContainer2.Panel1.Controls.Add(this.tbFunction);
             this.splitContainer2.Panel1.Controls.Add(this.label9);
             this.splitContainer2.Panel1.Controls.Add(this.nudInitPopulationSize);
@@ -147,12 +153,12 @@
             // 
             this.splitContainer2.Panel2.Controls.Add(this.txtLog);
             this.splitContainer2.Size = new System.Drawing.Size(317, 626);
-            this.splitContainer2.SplitterDistance = 494;
+            this.splitContainer2.SplitterDistance = 493;
             this.splitContainer2.TabIndex = 0;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(12, 464);
+            this.button1.Location = new System.Drawing.Point(12, 458);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 70;
@@ -160,72 +166,18 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // cbCheckWithFunctionValue
-            // 
-            this.cbCheckWithFunctionValue.AutoSize = true;
-            this.cbCheckWithFunctionValue.Location = new System.Drawing.Point(15, 415);
-            this.cbCheckWithFunctionValue.Name = "cbCheckWithFunctionValue";
-            this.cbCheckWithFunctionValue.Size = new System.Drawing.Size(212, 17);
-            this.cbCheckWithFunctionValue.TabIndex = 69;
-            this.cbCheckWithFunctionValue.Text = "Сверять с известным значение ЦФ:";
-            this.cbCheckWithFunctionValue.UseVisualStyleBackColor = true;
-            // 
-            // nudCheckFunctionValue
-            // 
-            this.nudCheckFunctionValue.DecimalPlaces = 3;
-            this.nudCheckFunctionValue.Location = new System.Drawing.Point(15, 438);
-            this.nudCheckFunctionValue.Maximum = new decimal(new int[] {
-            10000000,
-            0,
-            0,
-            0});
-            this.nudCheckFunctionValue.Minimum = new decimal(new int[] {
-            10000000,
-            0,
-            0,
-            -2147483648});
-            this.nudCheckFunctionValue.Name = "nudCheckFunctionValue";
-            this.nudCheckFunctionValue.Size = new System.Drawing.Size(120, 20);
-            this.nudCheckFunctionValue.TabIndex = 68;
-            this.nudCheckFunctionValue.Value = new decimal(new int[] {
-            6285,
-            0,
-            0,
-            196608});
-            // 
-            // cbExtremum
-            // 
-            this.cbExtremum.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbExtremum.FormattingEnabled = true;
-            this.cbExtremum.Items.AddRange(new object[] {
-            "Максимум",
-            "Минимум"});
-            this.cbExtremum.Location = new System.Drawing.Point(15, 388);
-            this.cbExtremum.Name = "cbExtremum";
-            this.cbExtremum.Size = new System.Drawing.Size(144, 21);
-            this.cbExtremum.TabIndex = 67;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(12, 372);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(67, 13);
-            this.label10.TabIndex = 66;
-            this.label10.Text = "Экстремум:";
-            // 
             // tbFunction
             // 
-            this.tbFunction.Location = new System.Drawing.Point(15, 349);
+            this.tbFunction.Location = new System.Drawing.Point(15, 343);
             this.tbFunction.Name = "tbFunction";
             this.tbFunction.Size = new System.Drawing.Size(287, 20);
             this.tbFunction.TabIndex = 65;
-            this.tbFunction.Text = "Cos(x) / (1 + Exp(-x))";
+            this.tbFunction.Text = "-Sin(x)*Pow(Sin(1*Pow(x,2)/3),2)";
             // 
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(12, 333);
+            this.label9.Location = new System.Drawing.Point(12, 327);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(56, 13);
             this.label9.TabIndex = 64;
@@ -233,7 +185,7 @@
             // 
             // nudInitPopulationSize
             // 
-            this.nudInitPopulationSize.Location = new System.Drawing.Point(15, 232);
+            this.nudInitPopulationSize.Location = new System.Drawing.Point(15, 226);
             this.nudInitPopulationSize.Maximum = new decimal(new int[] {
             1000000000,
             0,
@@ -256,7 +208,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(12, 216);
+            this.label8.Location = new System.Drawing.Point(12, 210);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(164, 13);
             this.label8.TabIndex = 62;
@@ -265,7 +217,7 @@
             // nudMutationPossibility
             // 
             this.nudMutationPossibility.DecimalPlaces = 2;
-            this.nudMutationPossibility.Location = new System.Drawing.Point(15, 310);
+            this.nudMutationPossibility.Location = new System.Drawing.Point(182, 265);
             this.nudMutationPossibility.Maximum = new decimal(new int[] {
             1,
             0,
@@ -275,7 +227,7 @@
             this.nudMutationPossibility.Size = new System.Drawing.Size(120, 20);
             this.nudMutationPossibility.TabIndex = 61;
             this.nudMutationPossibility.Value = new decimal(new int[] {
-            1,
+            9,
             0,
             0,
             65536});
@@ -283,7 +235,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(12, 294);
+            this.label7.Location = new System.Drawing.Point(179, 249);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(120, 13);
             this.label7.TabIndex = 60;
@@ -292,7 +244,7 @@
             // nudCrossPossibility
             // 
             this.nudCrossPossibility.DecimalPlaces = 2;
-            this.nudCrossPossibility.Location = new System.Drawing.Point(15, 271);
+            this.nudCrossPossibility.Location = new System.Drawing.Point(15, 265);
             this.nudCrossPossibility.Maximum = new decimal(new int[] {
             1,
             0,
@@ -310,7 +262,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 255);
+            this.label6.Location = new System.Drawing.Point(12, 249);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(147, 13);
             this.label6.TabIndex = 58;
@@ -318,7 +270,7 @@
             // 
             // nudMaxPopulationSize
             // 
-            this.nudMaxPopulationSize.Location = new System.Drawing.Point(15, 189);
+            this.nudMaxPopulationSize.Location = new System.Drawing.Point(15, 183);
             this.nudMaxPopulationSize.Maximum = new decimal(new int[] {
             1000000000,
             0,
@@ -341,7 +293,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 173);
+            this.label5.Location = new System.Drawing.Point(12, 167);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(186, 13);
             this.label5.TabIndex = 56;
@@ -350,7 +302,7 @@
             // nudMaxValue
             // 
             this.nudMaxValue.DecimalPlaces = 2;
-            this.nudMaxValue.Location = new System.Drawing.Point(15, 148);
+            this.nudMaxValue.Location = new System.Drawing.Point(15, 142);
             this.nudMaxValue.Maximum = new decimal(new int[] {
             10000000,
             0,
@@ -365,15 +317,15 @@
             this.nudMaxValue.Size = new System.Drawing.Size(120, 20);
             this.nudMaxValue.TabIndex = 55;
             this.nudMaxValue.Value = new decimal(new int[] {
-            10,
+            314,
             0,
             0,
-            0});
+            131072});
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 132);
+            this.label4.Location = new System.Drawing.Point(12, 126);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(231, 13);
             this.label4.TabIndex = 54;
@@ -382,7 +334,7 @@
             // nudMinValue
             // 
             this.nudMinValue.DecimalPlaces = 2;
-            this.nudMinValue.Location = new System.Drawing.Point(15, 109);
+            this.nudMinValue.Location = new System.Drawing.Point(15, 103);
             this.nudMinValue.Maximum = new decimal(new int[] {
             10000000,
             0,
@@ -396,16 +348,11 @@
             this.nudMinValue.Name = "nudMinValue";
             this.nudMinValue.Size = new System.Drawing.Size(120, 20);
             this.nudMinValue.TabIndex = 53;
-            this.nudMinValue.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            65536});
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 93);
+            this.label3.Location = new System.Drawing.Point(12, 87);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(225, 13);
             this.label3.TabIndex = 52;
@@ -438,9 +385,9 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(12, 48);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(290, 13);
+            this.label2.Size = new System.Drawing.Size(268, 13);
             this.label2.TabIndex = 50;
-            this.label2.Text = "Макс. кол-во поколений при постоянном значении ЦФ:";
+            this.label2.Text = "Макс. кол-во поколений при постоянном значении:";
             // 
             // nudMaxGenerations
             // 
@@ -481,7 +428,7 @@
             this.txtLog.Name = "txtLog";
             this.txtLog.ReadOnly = true;
             this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtLog.Size = new System.Drawing.Size(317, 128);
+            this.txtLog.Size = new System.Drawing.Size(317, 129);
             this.txtLog.TabIndex = 0;
             // 
             // splitContainer3
@@ -535,7 +482,7 @@
             this.gViewer1.TabIndex = 2;
             this.gViewer1.TightOffsetForRouting = 0.125D;
             this.gViewer1.ToolBarIsVisible = true;
-            this.gViewer1.Transform = planeTransformation1;
+            this.gViewer1.Transform = planeTransformation5;
             this.gViewer1.UndoRedoButtonsVisible = true;
             this.gViewer1.WindowZoomButtonPressed = false;
             this.gViewer1.ZoomF = 1D;
@@ -561,33 +508,107 @@
             // 
             // chartBestChromosome
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chartBestChromosome.ChartAreas.Add(chartArea1);
+            chartArea9.Name = "ChartArea1";
+            this.chartBestChromosome.ChartAreas.Add(chartArea9);
             this.chartBestChromosome.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chartBestChromosome.Location = new System.Drawing.Point(0, 0);
             this.chartBestChromosome.Name = "chartBestChromosome";
-            series1.BorderWidth = 2;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Name = "Series1";
-            this.chartBestChromosome.Series.Add(series1);
+            series9.BorderWidth = 2;
+            series9.ChartArea = "ChartArea1";
+            series9.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series9.Name = "Series1";
+            this.chartBestChromosome.Series.Add(series9);
             this.chartBestChromosome.Size = new System.Drawing.Size(488, 314);
             this.chartBestChromosome.TabIndex = 3;
             // 
             // chartFunction
             // 
-            chartArea2.Name = "ChartArea1";
-            this.chartFunction.ChartAreas.Add(chartArea2);
+            chartArea10.Name = "ChartArea1";
+            this.chartFunction.ChartAreas.Add(chartArea10);
             this.chartFunction.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chartFunction.Location = new System.Drawing.Point(0, 0);
             this.chartFunction.Name = "chartFunction";
-            series2.BorderWidth = 2;
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series2.Name = "Series1";
-            this.chartFunction.Series.Add(series2);
+            series10.BorderWidth = 2;
+            series10.ChartArea = "ChartArea1";
+            series10.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series10.Name = "Series1";
+            this.chartFunction.Series.Add(series10);
             this.chartFunction.Size = new System.Drawing.Size(488, 308);
             this.chartFunction.TabIndex = 4;
+            // 
+            // nudMaxTreeDepth
+            // 
+            this.nudMaxTreeDepth.Location = new System.Drawing.Point(15, 423);
+            this.nudMaxTreeDepth.Maximum = new decimal(new int[] {
+            1000000000,
+            0,
+            0,
+            0});
+            this.nudMaxTreeDepth.Minimum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.nudMaxTreeDepth.Name = "nudMaxTreeDepth";
+            this.nudMaxTreeDepth.Size = new System.Drawing.Size(120, 20);
+            this.nudMaxTreeDepth.TabIndex = 72;
+            this.nudMaxTreeDepth.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(12, 407);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(169, 13);
+            this.label11.TabIndex = 71;
+            this.label11.Text = "Максимальная глубина дерева:";
+            // 
+            // tbFitnessFunction
+            // 
+            this.tbFitnessFunction.Location = new System.Drawing.Point(15, 384);
+            this.tbFitnessFunction.Name = "tbFitnessFunction";
+            this.tbFitnessFunction.Size = new System.Drawing.Size(287, 20);
+            this.tbFitnessFunction.TabIndex = 74;
+            this.tbFitnessFunction.Text = "Abs(y-d)";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(12, 368);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(102, 13);
+            this.label10.TabIndex = 73;
+            this.label10.Text = "Фитнесс-функция:";
+            // 
+            // nudCheckPoints
+            // 
+            this.nudCheckPoints.Location = new System.Drawing.Point(15, 304);
+            this.nudCheckPoints.Minimum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.nudCheckPoints.Name = "nudCheckPoints";
+            this.nudCheckPoints.Size = new System.Drawing.Size(120, 20);
+            this.nudCheckPoints.TabIndex = 76;
+            this.nudCheckPoints.Value = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(12, 288);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(151, 13);
+            this.label12.TabIndex = 75;
+            this.label12.Text = "Количество точек проверки:";
             // 
             // Form1
             // 
@@ -596,7 +617,7 @@
             this.ClientSize = new System.Drawing.Size(1213, 626);
             this.Controls.Add(this.splitContainer1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Генетическое программирование";
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -607,7 +628,6 @@
             this.splitContainer2.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.nudCheckFunctionValue)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudInitPopulationSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMutationPossibility)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossPossibility)).EndInit();
@@ -626,6 +646,8 @@
             this.splitContainer4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chartBestChromosome)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chartFunction)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMaxTreeDepth)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudCheckPoints)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -638,10 +660,6 @@
         private System.Windows.Forms.SplitContainer splitContainer4;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartBestChromosome;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartFunction;
-        private System.Windows.Forms.CheckBox cbCheckWithFunctionValue;
-        private System.Windows.Forms.NumericUpDown nudCheckFunctionValue;
-        private System.Windows.Forms.ComboBox cbExtremum;
-        private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox tbFunction;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.NumericUpDown nudInitPopulationSize;
@@ -662,6 +680,12 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.TextBox txtLog;
+        private System.Windows.Forms.NumericUpDown nudMaxTreeDepth;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox tbFitnessFunction;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.NumericUpDown nudCheckPoints;
+        private System.Windows.Forms.Label label12;
     }
 }
 

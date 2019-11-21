@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NExpression = NCalc.Expression;
 
@@ -23,8 +24,21 @@ namespace gp
         };
         static readonly string[] values = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
         static readonly string[] arguments = { "x" };
+        public string[] argumentsList { get; private set; }
         private int lastNodeID = 0;
         public Node Root { get; set; }
+        public int NodesCount { get; private set; }
+
+        public BinaryTree(string[] unknownVariables)
+        {
+            if(unknownVariables.Length > 0)
+            {
+                argumentsList = unknownVariables;
+            } else
+            {
+                argumentsList = arguments;
+            }
+        }
         public int GenerateNewNodeID()
         {
             lastNodeID++;
@@ -40,6 +54,7 @@ namespace gp
         }
         public string ParseData()
         {
+            GetNodesCount();
             return TraverseInOrder(this.Root, "");
         }
         public static int GetRandomNumber(int min, int max)
@@ -187,9 +202,9 @@ namespace gp
             }
             else
             {
-                int oc = arguments.Length;
+                int oc = argumentsList.Length;
                 int rn = GetRandomNumber(0, oc);
-                return arguments[rn];
+                return argumentsList[rn];
             }
         }
         public string GetRandomValue()
@@ -437,7 +452,21 @@ namespace gp
 
             return minv;
         }*/
-
+        public void GetNodesCount()
+        {
+            Dictionary<int, int> nodesList = new Dictionary<int, int>();
+            GetNodesCount(this.Root, nodesList);
+            this.NodesCount = nodesList.Count();
+        }
+        public void GetNodesCount(Node parent, Dictionary<int, int> nodesList)
+        {
+            if(parent != null)
+            {
+                nodesList.Add(parent.id, 0);
+                GetNodesCount(parent.LeftNode, nodesList);
+                GetNodesCount(parent.RightNode, nodesList);
+            }
+        }
         public int GetTreeDepth()
         {
             return this.GetTreeDepth(this.Root);

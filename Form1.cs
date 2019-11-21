@@ -1,22 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using NCalcExpression = NCalc.Expression;
-using org.mariuszgromada.math.mxparser;
-using MExpression = org.mariuszgromada.math.mxparser.Expression;
 using NExpression = NCalc.Expression;
-using Expression = System.Linq.Expressions.Expression;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using System.Collections.Concurrent;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace gp
 {
@@ -50,17 +40,20 @@ namespace gp
         private void updateUI()
         {
             string log = string.Empty;
-            int currentBestChromosomeID = syncPopulation.GetBestСhromosome().id;
+            Chromosome currentBestChromosome = syncPopulation.GetBestСhromosome();
             log = "Выполняется, поколение " + syncPopulation.generation.ToString() + "\r\n";
             double t = Math.Round(100 - syncPopulation.GetBestСhromosome().fitness, 2);
             if (t < 0) t = 0;
             log += String.Format("Точность: {0}%\r\n", t);
             log += string.Format("Лучшая хромосома:\r\n" + syncPopulation.GetBestСhromosome().ParsedData);
             if(txtLog.Text != log) txtLog.Text = log;
-            if (currentBestChromosomeID != lastBestChromosomeID)
+            if (currentBestChromosome.id != lastBestChromosomeID)
             {
-                lastBestChromosomeID = currentBestChromosomeID;
-                drawBestChromosomeChart(chartBestChromosome, syncPopulation);
+                lastBestChromosomeID = currentBestChromosome.id;
+                if (currentBestChromosome.Tree.argumentsList.Length == 1)
+                {
+                    DrawBestChromosomeChart(chartBestChromosome, syncPopulation);
+                }
                 DrawBestChromosomeDiagram(gViewer1, syncPopulation);
             }
         }
@@ -100,7 +93,7 @@ namespace gp
                         }
                         lastValue = chromosome.fitness;
                     }
-                    if ((i % 2) == 0 && i != 0)
+                    if ((i % 2) == 0)
                     {
                         syncPopulation = population;
                         this.BeginInvoke(new MethodInvoker(updateUI));
@@ -140,20 +133,54 @@ namespace gp
 
             return log;
         }
+        public static List<string> ValidatePattern(string pattern, string input)
+        {
+            Regex regex = new Regex(pattern);
+            var matches = regex.Matches(input);
 
+            List<string> results = new List<string>();
+            foreach (Match match in matches)
+            {
+                var group = match.Groups[0];
+                results.Add(group.Success ? group.Value : string.Empty);
+            }
+            return results;
+        }
         private async void button1_Click(object sender, EventArgs e)
         {
-            string log;
-            decimal maxGenerations = 1000;
-            decimal maxEqualGenerations = 200;
+            string log = string.Empty;
+
+            decimal maxGenerations = nudMaxGenerations.Value;
+            decimal maxEqualGenerations = nudMaxEqualGenerations.Value;
+
+            double minValue = decimal.ToDouble(nudMinValue.Value);
+            double maxValue = decimal.ToDouble(nudMaxValue.Value);
+            int maxPopulationSie = decimal.ToInt32(nudMaxPopulationSize.Value);
+            double crossPossibility = decimal.ToDouble(nudCrossPossibility.Value);
+            double mutationPossibility = decimal.ToDouble(nudMutationPossibility.Value);
+            int initPopulationSie = decimal.ToInt32(nudInitPopulationSize.Value);
+            int maxTreeDepth = decimal.ToInt32(nudMaxTreeDepth.Value);
+            int checkPoints = decimal.ToInt32(nudCheckPoints.Value);
 
             lockControls(true);
 
-            NExpression fitnessFunction = new NExpression("Abs(y-d)");
-            NExpression solutionFunction = new NExpression("3*Pow(x, 2)");
-            Population population = new Population(-5.12, 5.12, 100, 10, 0.9, 0.5, 4, fitnessFunction, solutionFunction);
-            drawSolutionFunctionChart(chartFunction, population);
+            NExpression fitnessFunction = new NExpression(tbFitnessFunction.Text);
+            NExpression solutionFunction = new NExpression(tbFunction.Text);
+            List<string> uv = new List<string>();
+            uv = ValidatePattern(@"(x[\d]+?)", tbFunction.Text);
+            uv.Insert(0, "x");
+            string[] unknownVariables = uv.ToArray();
+
+            Population population = new Population(minValue, maxValue, maxPopulationSie, maxTreeDepth, 
+                crossPossibility, mutationPossibility, initPopulationSie, fitnessFunction, solutionFunction, 
+                unknownVariables, checkPoints);
+            if (unknownVariables.Length == 1)
+            {
+                drawSolutionFunctionChart(chartFunction, population);
+            }
+
             log = await Task.Run(() => Start(maxGenerations, maxEqualGenerations, population));
+            updateUI();
             txtLog.Text = log;
             lockControls(false);
         }
@@ -183,7 +210,7 @@ namespace gp
 
             gViewer.Graph = graph;
         }
-        private void drawBestChromosomeChart(Chart chart, Population population)
+        private void DrawBestChromosomeChart(Chart chart, Population population)
         {
             try
             {

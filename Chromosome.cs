@@ -13,10 +13,10 @@ namespace gp
         public string ParsedData { get; set; }
         public bool isDead { get; set; }
         public double fitness { get; set; }
-        public Chromosome(int id)
+        public Chromosome(int id, string[] unknownVariables)
         {
             this.id = id;
-            this.Tree = new BinaryTree();
+            this.Tree = new BinaryTree(unknownVariables);
             this.fitness = Double.NaN;
             this.isDead = false;
             this.ParsedData = string.Empty;
