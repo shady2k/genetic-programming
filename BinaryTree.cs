@@ -209,7 +209,7 @@ namespace gp
         }
         public string GetRandomValue()
         {
-            return GetRandomValue(4);
+            return GetRandomValue(3);
         }
         public Operator GetRandomOperator()
         {
@@ -218,7 +218,7 @@ namespace gp
             Operator op = operators[rn];
             if(op.operatorType == "power")
             {
-                op.power = StaticRandom.Next(2, 9);
+                op.power = StaticRandom.Next(2, 11);
             }
             return op;
         }

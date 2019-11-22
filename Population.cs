@@ -113,7 +113,10 @@ namespace gp
             double segmentMinValue = minValue;
             double segmentMaxValue = minValue + segmentLength;
 
-            for(int i = 0; i < accuracy; i++)
+            res.Add(minValue);
+            res.Add(maxValue);
+
+            for (int i = 0; i < accuracy; i++)
             {
                 double x = Math.Round(StaticRandom.NextDouble(segmentMinValue, segmentMaxValue), 3);
                 res.Add(x);
@@ -173,7 +176,8 @@ namespace gp
         public Chromosome GenerateRandomChromosome()
         {
             Chromosome chromosome = new Chromosome(GenerateNewChromosomeID(), unknownVariables);
-            chromosome.Tree.GenerateRandomTree(chromosome, maxTreeDepth);
+            int td = StaticRandom.Next(2, maxTreeDepth);
+            chromosome.Tree.GenerateRandomTree(chromosome, td);
             chromosome.ParsedData = chromosome.Tree.ParseData();
             /*chromosome.fitness = CalcFitness(chromosome);*/
             return chromosome;
@@ -272,6 +276,7 @@ namespace gp
             List<Chromosome> sorted = new List<Chromosome>();
             sorted = chromosomes.OrderBy(o => o.isDead).ThenBy(o => o.fitness).ThenBy(o => o.Tree.NodesCount).Take(maxPopulationSize).ToList();
             chromosomes = sorted;
+            xRandomVariables = GetFitnessVariables();
             generation++;
         }
         public Chromosome GetBestСhromosome()

@@ -28,13 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation planeTransformation5 = new Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea9 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea10 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation planeTransformation1 = new Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.nudCheckPoints = new System.Windows.Forms.NumericUpDown();
+            this.label12 = new System.Windows.Forms.Label();
+            this.tbFitnessFunction = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.nudMaxTreeDepth = new System.Windows.Forms.NumericUpDown();
+            this.label11 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.tbFunction = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -60,12 +66,6 @@
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.chartBestChromosome = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.chartFunction = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.nudMaxTreeDepth = new System.Windows.Forms.NumericUpDown();
-            this.label11 = new System.Windows.Forms.Label();
-            this.tbFitnessFunction = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.nudCheckPoints = new System.Windows.Forms.NumericUpDown();
-            this.label12 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -74,6 +74,8 @@
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudCheckPoints)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMaxTreeDepth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudInitPopulationSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMutationPossibility)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossPossibility)).BeginInit();
@@ -92,8 +94,6 @@
             this.splitContainer4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chartBestChromosome)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chartFunction)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudMaxTreeDepth)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudCheckPoints)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -156,6 +156,80 @@
             this.splitContainer2.SplitterDistance = 493;
             this.splitContainer2.TabIndex = 0;
             // 
+            // nudCheckPoints
+            // 
+            this.nudCheckPoints.Location = new System.Drawing.Point(15, 304);
+            this.nudCheckPoints.Minimum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.nudCheckPoints.Name = "nudCheckPoints";
+            this.nudCheckPoints.Size = new System.Drawing.Size(120, 20);
+            this.nudCheckPoints.TabIndex = 76;
+            this.nudCheckPoints.Value = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(12, 288);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(151, 13);
+            this.label12.TabIndex = 75;
+            this.label12.Text = "Количество точек проверки:";
+            // 
+            // tbFitnessFunction
+            // 
+            this.tbFitnessFunction.Location = new System.Drawing.Point(15, 384);
+            this.tbFitnessFunction.Name = "tbFitnessFunction";
+            this.tbFitnessFunction.Size = new System.Drawing.Size(287, 20);
+            this.tbFitnessFunction.TabIndex = 74;
+            this.tbFitnessFunction.Text = "Abs(y-d)";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(12, 368);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(102, 13);
+            this.label10.TabIndex = 73;
+            this.label10.Text = "Фитнесс-функция:";
+            // 
+            // nudMaxTreeDepth
+            // 
+            this.nudMaxTreeDepth.Location = new System.Drawing.Point(15, 423);
+            this.nudMaxTreeDepth.Maximum = new decimal(new int[] {
+            1000000000,
+            0,
+            0,
+            0});
+            this.nudMaxTreeDepth.Minimum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.nudMaxTreeDepth.Name = "nudMaxTreeDepth";
+            this.nudMaxTreeDepth.Size = new System.Drawing.Size(120, 20);
+            this.nudMaxTreeDepth.TabIndex = 72;
+            this.nudMaxTreeDepth.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(12, 407);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(169, 13);
+            this.label11.TabIndex = 71;
+            this.label11.Text = "Максимальная глубина дерева:";
+            // 
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(12, 458);
@@ -172,7 +246,7 @@
             this.tbFunction.Name = "tbFunction";
             this.tbFunction.Size = new System.Drawing.Size(287, 20);
             this.tbFunction.TabIndex = 65;
-            this.tbFunction.Text = "-Sin(x)*Pow(Sin(1*Pow(x,2)/3),2)";
+            this.tbFunction.Text = "-Sin(x)*Pow(Sin(Pow(x,2)/3.14),20)";
             // 
             // label9
             // 
@@ -482,7 +556,7 @@
             this.gViewer1.TabIndex = 2;
             this.gViewer1.TightOffsetForRouting = 0.125D;
             this.gViewer1.ToolBarIsVisible = true;
-            this.gViewer1.Transform = planeTransformation5;
+            this.gViewer1.Transform = planeTransformation1;
             this.gViewer1.UndoRedoButtonsVisible = true;
             this.gViewer1.WindowZoomButtonPressed = false;
             this.gViewer1.ZoomF = 1D;
@@ -508,107 +582,33 @@
             // 
             // chartBestChromosome
             // 
-            chartArea9.Name = "ChartArea1";
-            this.chartBestChromosome.ChartAreas.Add(chartArea9);
+            chartArea1.Name = "ChartArea1";
+            this.chartBestChromosome.ChartAreas.Add(chartArea1);
             this.chartBestChromosome.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chartBestChromosome.Location = new System.Drawing.Point(0, 0);
             this.chartBestChromosome.Name = "chartBestChromosome";
-            series9.BorderWidth = 2;
-            series9.ChartArea = "ChartArea1";
-            series9.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series9.Name = "Series1";
-            this.chartBestChromosome.Series.Add(series9);
+            series1.BorderWidth = 2;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Name = "Series1";
+            this.chartBestChromosome.Series.Add(series1);
             this.chartBestChromosome.Size = new System.Drawing.Size(488, 314);
             this.chartBestChromosome.TabIndex = 3;
             // 
             // chartFunction
             // 
-            chartArea10.Name = "ChartArea1";
-            this.chartFunction.ChartAreas.Add(chartArea10);
+            chartArea2.Name = "ChartArea1";
+            this.chartFunction.ChartAreas.Add(chartArea2);
             this.chartFunction.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chartFunction.Location = new System.Drawing.Point(0, 0);
             this.chartFunction.Name = "chartFunction";
-            series10.BorderWidth = 2;
-            series10.ChartArea = "ChartArea1";
-            series10.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series10.Name = "Series1";
-            this.chartFunction.Series.Add(series10);
+            series2.BorderWidth = 2;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series2.Name = "Series1";
+            this.chartFunction.Series.Add(series2);
             this.chartFunction.Size = new System.Drawing.Size(488, 308);
             this.chartFunction.TabIndex = 4;
-            // 
-            // nudMaxTreeDepth
-            // 
-            this.nudMaxTreeDepth.Location = new System.Drawing.Point(15, 423);
-            this.nudMaxTreeDepth.Maximum = new decimal(new int[] {
-            1000000000,
-            0,
-            0,
-            0});
-            this.nudMaxTreeDepth.Minimum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.nudMaxTreeDepth.Name = "nudMaxTreeDepth";
-            this.nudMaxTreeDepth.Size = new System.Drawing.Size(120, 20);
-            this.nudMaxTreeDepth.TabIndex = 72;
-            this.nudMaxTreeDepth.Value = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(12, 407);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(169, 13);
-            this.label11.TabIndex = 71;
-            this.label11.Text = "Максимальная глубина дерева:";
-            // 
-            // tbFitnessFunction
-            // 
-            this.tbFitnessFunction.Location = new System.Drawing.Point(15, 384);
-            this.tbFitnessFunction.Name = "tbFitnessFunction";
-            this.tbFitnessFunction.Size = new System.Drawing.Size(287, 20);
-            this.tbFitnessFunction.TabIndex = 74;
-            this.tbFitnessFunction.Text = "Abs(y-d)";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(12, 368);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(102, 13);
-            this.label10.TabIndex = 73;
-            this.label10.Text = "Фитнесс-функция:";
-            // 
-            // nudCheckPoints
-            // 
-            this.nudCheckPoints.Location = new System.Drawing.Point(15, 304);
-            this.nudCheckPoints.Minimum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.nudCheckPoints.Name = "nudCheckPoints";
-            this.nudCheckPoints.Size = new System.Drawing.Size(120, 20);
-            this.nudCheckPoints.TabIndex = 76;
-            this.nudCheckPoints.Value = new decimal(new int[] {
-            9,
-            0,
-            0,
-            0});
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(12, 288);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(151, 13);
-            this.label12.TabIndex = 75;
-            this.label12.Text = "Количество точек проверки:";
             // 
             // Form1
             // 
@@ -628,6 +628,8 @@
             this.splitContainer2.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.nudCheckPoints)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMaxTreeDepth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudInitPopulationSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMutationPossibility)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossPossibility)).EndInit();
@@ -646,8 +648,6 @@
             this.splitContainer4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chartBestChromosome)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chartFunction)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudMaxTreeDepth)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudCheckPoints)).EndInit();
             this.ResumeLayout(false);
 
         }

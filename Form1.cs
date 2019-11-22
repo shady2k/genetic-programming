@@ -123,6 +123,7 @@ namespace gp
             log += String.Format("Решение найдно на поколении: {0}\r\n", lastValueGeneration);
             double t = Math.Round(100 - population.GetBestСhromosome().fitness, 2);
             if (t < 0) t = 0;
+            log += String.Format("Точность: {0}%\r\n", t);
             log += String.Format("Максимальное количество поколений: {0}\r\n", maxGenerations);
             log += String.Format("Интервал изменений хромосом: [{0}, {1}]\r\n", population.minValue, population.maxValue);
             log += String.Format("Макс. кол-во поколений при постоянном значении: {0}\r\n", maxEqualGenerations);
